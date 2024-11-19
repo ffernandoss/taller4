@@ -42,6 +42,8 @@ fun CarForm() {
     var marca by remember { mutableStateOf("") }
     var color by remember { mutableStateOf("") }
     var modelo by remember { mutableStateOf("") }
+    var matricula by remember { mutableStateOf("") }
+    var fechaCompra by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -70,8 +72,22 @@ fun CarForm() {
             label = { Text("Modelo") },
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = matricula,
+            onValueChange = { matricula = it },
+            label = { Text("Matrícula") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = fechaCompra,
+            onValueChange = { fechaCompra = it },
+            label = { Text("Fecha de Compra") },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { addCarToFirebase(context, marca, color, modelo) }) {
+        Button(onClick = { addCarToFirebase(context, marca, color, modelo, matricula, fechaCompra) }) {
             Text("Añadir Coche")
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -85,6 +101,25 @@ fun CarForm() {
     }
 }
 
+fun addCarToFirebase(context: android.content.Context, marca: String, color: String, modelo: String, matricula: String, fechaCompra: String) {
+    val db = FirebaseFirestore.getInstance()
+    val car = hashMapOf(
+        "marca" to marca,
+        "color" to color,
+        "modelo" to modelo,
+        "matricula" to matricula,
+        "fechaCompra" to fechaCompra
+    )
+
+    db.collection("coches")
+        .add(car)
+        .addOnSuccessListener {
+            Toast.makeText(context, "Coche añadido", Toast.LENGTH_SHORT).show()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error al añadir coche: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+}
 @Composable
 fun showDeleteCarDialog(context: android.content.Context, onDismiss: () -> Unit) {
     var carName by remember { mutableStateOf("") }
