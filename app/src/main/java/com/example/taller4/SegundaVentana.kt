@@ -2,35 +2,36 @@ package com.example.taller4
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import com.example.taller4.ui.theme.Taller4Theme
 import com.google.firebase.firestore.FirebaseFirestore
 
-class SegundaVentana : ComponentActivity() {
+class SegundaVentana : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
+        setContentView(R.layout.activity_segunda_ventana)
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.commit {
+                replace<CarListFragment>(R.id.fragment_container)
+            }
+        }
+
+        findViewById<ComposeView>(R.id.compose_view).setContent {
             Taller4Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CarForm()
-                    }
-                }
+                CarForm()
             }
         }
     }
