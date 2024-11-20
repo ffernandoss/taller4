@@ -1,27 +1,41 @@
 package com.example.taller4
 
+import android.graphics.Color
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.example.taller4.ui.theme.Taller4Theme
 import com.google.firebase.firestore.FirebaseFirestore
 
-class SegundaVentana : FragmentActivity() {
+class SegundaVentana : FragmentActivity(), SensorEventListener {
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_segunda_ventana)
+
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
@@ -32,6 +46,41 @@ class SegundaVentana : FragmentActivity() {
         findViewById<ComposeView>(R.id.compose_view).setContent {
             Taller4Theme {
                 CarForm()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        accelerometer?.also { acc ->
+            sensorManager.registerListener(this, acc, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(this)
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // No se necesita implementar
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        event?.let {
+            val x = it.values[0]
+            val y = it.values[1]
+            val z = it.values[2]
+            val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble()).toFloat()
+
+            if (acceleration > 12) {
+                findViewById<ComposeView>(R.id.compose_view).setContent {
+                    Taller4Theme {
+                        Box(modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.primary))
+                    }
+                }
             }
         }
     }
@@ -120,6 +169,7 @@ fun addCarToFirebase(context: android.content.Context, marca: String, color: Str
             Toast.makeText(context, "Error al añadir coche: ${e.message}", Toast.LENGTH_SHORT).show()
         }
 }
+
 @Composable
 fun showDeleteCarDialog(context: android.content.Context, onDismiss: () -> Unit) {
     var carName by remember { mutableStateOf("") }
@@ -151,24 +201,6 @@ fun showDeleteCarDialog(context: android.content.Context, onDismiss: () -> Unit)
             }
         }
     )
-}
-
-fun addCarToFirebase(context: android.content.Context, marca: String, color: String, modelo: String) {
-    val db = FirebaseFirestore.getInstance()
-    val car = hashMapOf(
-        "marca" to marca,
-        "color" to color,
-        "modelo" to modelo
-    )
-
-    db.collection("coches")
-        .add(car)
-        .addOnSuccessListener {
-            Toast.makeText(context, "Coche añadido", Toast.LENGTH_SHORT).show()
-        }
-        .addOnFailureListener { e ->
-            Toast.makeText(context, "Error al añadir coche: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
 }
 
 fun deleteCarFromFirebase(context: android.content.Context, carName: String) {
