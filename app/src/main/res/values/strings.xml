@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">taller4</string>
+    <string name="car_widget_description">Widget que muestra los nombres de los coches</string>
 </resources>

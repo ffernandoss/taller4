@@ -1,0 +1,16 @@
+<!-- File: res/xml/car_widget_info.xml -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="120dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:maxResizeWidth="300dp"
+    android:maxResizeHeight="200dp"
+    android:updatePeriodMillis="3000"
+    android:description="@string/car_widget_description"
+    android:previewLayout="@layout/car_widget_preview"
+    android:initialLayout="@layout/car_widget"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional">
+</appwidget-provider>
