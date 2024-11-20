@@ -76,9 +76,13 @@ class SegundaVentana : FragmentActivity(), SensorEventListener {
             if (acceleration > 12) {
                 findViewById<ComposeView>(R.id.compose_view).setContent {
                     Taller4Theme {
-                        Box(modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.primary))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(androidx.compose.ui.graphics.Color.Green)
+                        ) {
+                            CarForm()
+                        }
                     }
                 }
             }
